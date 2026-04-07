@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Service Status — Om Auto Center Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap"
+          rel="stylesheet" />
+
+    <style>
+        /* ══ RESET & BASE ══ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:       #f4f5f7;
+            --bg2:      #eaecf0;
+            --card:     #ffffff;
+            --border:   #e0e3ea;
+            --text:     #1a1d27;
+            --text2:    #6b7280;
+            --text3:    #9ca3af;
+            --accent:   #2563eb;
+            --accent2:  #1d4ed8;
+            --shadow:   0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+            --radius:   14px;
+            --radius-sm:9px;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ══ ADMIN NAVBAR ══ */
+        .admin-nav {
+            background: #ffffff;
+            border-bottom: 1.5px solid var(--border);
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-logo-box {
+            width: 36px;
+            height: 36px;
+            background: #1a1d27;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .nav-brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .nav-brand-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 18px;
+            letter-spacing: 1.5px;
+            color: #1a1d27;
+        }
+
+        .nav-brand-sub {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text2);
+            padding: 7px 16px;
+            border-radius: var(--radius-sm);
+            transition: all .2s;
+        }
+
+        .nav-links a:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-links a.active {
+            background: #eff6ff;
+            color: var(--accent);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-badge {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 100px;
+            background: #eff6ff;
+            color: var(--accent);
+            border: 1px solid #bfdbfe;
+            letter-spacing: .5px;
+        }
+
+        .hamburger-admin {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        /* ══ PAGE HEADER ══ */
+        .page-header {
+            background: #ffffff;
+            border-bottom: 1.5px solid var(--border);
+            padding: 22px 32px;
+        }
+
+        .page-header-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .page-header h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 26px;
+            letter-spacing: 2px;
+            color: var(--text);
+        }
+
+        .page-header p {
+            font-size: 13px;
+            color: var(--text2);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 9px 20px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: #ffffff;
+            color: var(--text2);
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .refresh-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: #eff6ff;
+        }
+
+        /* ══ MAIN CONTENT ══ */
+        .main {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 28px 32px 60px;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* ══ SUMMARY STRIP ══ */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 26px;
+        }
+
+        .summary-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .summary-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dot-all      { background: #6b7280; }
+        .dot-pending  { background: #f97316; }
+        .dot-progress { background: #3b82f6; }
+        .dot-done     { background: #22c55e; }
+
+        .summary-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 34px;
+            letter-spacing: 1px;
+            color: var(--text);
+            line-height: 1;
+        }
+
+        .summary-sub {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text3);
+        }
+
+        /* ══ TOOLBAR ══ */
+        .toolbar {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .toolbar input {
+            flex: 1;
+            min-width: 200px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            transition: all .2s;
+        }
+
+        .toolbar input::placeholder { color: var(--text3); }
+
+        .toolbar input:focus {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+        }
+
+        .filter-btn {
+            font-family: 'Nunito', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 8px 16px;
+            border-radius: 100px;
+            border: 1.5px solid var(--border);
+            background: transparent;
+            color: var(--text2);
+            cursor: pointer;
+            transition: all .2s;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover {
+            background: var(--bg2);
+            color: var(--text);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .result-label {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+            white-space: nowrap;
+        }
+
+        /* ══ CARDS LIST ══ */
+        .cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* ══ REQUEST CARD ══ */
+        .req-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform .2s, box-shadow .2s;
+            border-left: 4px solid transparent;
+        }
+
+        .req-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.09);
+        }
+
+        .req-card.st-pending    { border-left-color: #f97316; }
+        .req-card.st-progress   { border-left-color: #3b82f6; }
+        .req-card.st-completed  { border-left-color: #22c55e; }
+
+        /* card top */
+        .card-top {
+            padding: 18px 22px 14px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .card-veh h3 {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 3px;
+        }
+
+        .card-veh p {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+            letter-spacing: .3px;
+        }
+
+        .status-badge {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 5px 14px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .badge-pending  { background: rgba(249,115,22,0.12); color: #c2410c; border: 1px solid rgba(249,115,22,0.3); }
+        .badge-progress { background: rgba(59,130,246,0.12); color: #1d4ed8; border: 1px solid rgba(59,130,246,0.3); }
+        .badge-done     { background: rgba(34,197,94,0.12);  color: #15803d; border: 1px solid rgba(34,197,94,0.3);  }
+
+        /* card info grid */
+        .card-info {
+            padding: 0 22px 16px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0,1fr));
+            gap: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-item { display: flex; flex-direction: column; gap: 4px; }
+
+        .info-lbl {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-val {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* card controls */
+        .card-controls {
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            background: #fafbfc;
+            border-top: 1px solid var(--border);
+        }
+
+        .ctrl-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            flex-shrink: 0;
+        }
+
+        .status-select {
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            cursor: pointer;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .status-select:focus { border-color: var(--accent); }
+
+        .date-group {
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-group.show { display: flex; }
+
+        .date-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+            white-space: nowrap;
+        }
+
+        .date-input {
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .date-input:focus { border-color: var(--accent); }
+
+        .save-btn {
+            margin-left: auto;
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 9px 24px;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .save-btn:hover {
+            background: var(--accent2);
+            transform: translateY(-1px);
+        }
+
+        .save-btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ══ TOAST ══ */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            background: #1a1d27;
+            color: #fff;
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 13px 20px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all .3s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ══ EMPTY STATE ══ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            display: none;
+        }
+
+        .empty-state.show { display: block; }
+
+        .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+        .empty-state h3 {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            color: var(--text2);
+            font-weight: 600;
+        }
+
+        /* ══ LOADING ══ */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text2);
+        }
+
+        /* ══ MOBILE NAV ══ */
+        .mobile-nav {
+            display: none;
+            flex-direction: column;
+            background: #fff;
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px 20px;
+            gap: 4px;
+        }
+
+        .mobile-nav.open { display: flex; }
+
+        .mobile-nav a {
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text2);
+            padding: 9px 14px;
+            border-radius: var(--radius-sm);
+            transition: all .2s;
+        }
+
+        .mobile-nav a:hover, .mobile-nav a.active {
+            background: #eff6ff;
+            color: var(--accent);
+        }
+
+        /* ══ RESPONSIVE ══ */
+        @media (max-width: 1024px) {
+            .card-info { grid-template-columns: repeat(2, minmax(0,1fr)); }
+        }
+
+        @media (max-width: 900px) {
+            .summary-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+            .nav-links { display: none; }
+            .hamburger-admin { display: block; }
+        }
+
+        @media (max-width: 768px) {
+            .admin-nav { padding: 0 20px; }
+            .main { padding: 20px 16px 50px; }
+            .page-header { padding: 16px 20px; }
+            .card-controls { gap: 10px; }
+            .save-btn { width: 100%; justify-content: center; margin-left: 0; }
+        }
+
+        @media (max-width: 600px) {
+            .summary-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+            .card-info { grid-template-columns: 1fr 1fr; }
+            .card-top { flex-direction: column; align-items: flex-start; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .toolbar input { min-width: unset; }
+            .result-label { margin-left: 0; }
+            .date-group { flex-direction: column; align-items: flex-start; }
+        }
+
+        @media (max-width: 400px) {
+            .card-info { grid-template-columns: 1fr; }
+            .main { padding: 16px 10px 40px; }
+            .card-top, .card-info, .card-controls { padding-left: 14px; padding-right: 14px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ══ ADMIN NAVBAR ══ -->
+<nav class="admin-nav">
+    <div class="nav-brand">
+        <div class="nav-logo-box">🛡️</div>
+        <div class="nav-brand-text">
+            <span class="nav-brand-name">Om Auto Center</span>
+            <span class="nav-brand-sub">Admin Panel</span>
+        </div>
+    </div>
+
+    <ul class="nav-links">
+        <li><a href="admin-dashboard.html">Dashboard</a></li>
+        <li><a href="admin-requests.html" class="active">Service Requests</a></li>
+        <li><a href="admin-customers.html">Customers</a></li>
+        <li><a href="admin-reports.html">Reports</a></li>
+        <li><a href="index.html" target="_blank">View Site</a></li>
+    </ul>
+
+    <div class="nav-right">
+        <span class="admin-badge">Admin</span>
+        <button class="hamburger-admin" id="hamburgerAdmin" aria-label="Toggle menu">☰</button>
+    </div>
+</nav>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobileNav">
+    <a href="admin-dashboard.html">Dashboard</a>
+    <a href="admin-requests.html" class="active">Service Requests</a>
+    <a href="admin-customers.html">Customers</a>
+    <a href="admin-reports.html">Reports</a>
+    <a href="index.html" target="_blank">View Site</a>
+</div>
+
+<!-- ══ PAGE HEADER ══ -->
+<div class="page-header">
+    <div class="page-header-inner">
+        <div>
+            <h1>🔧 Service Requests</h1>
+            <p>View all requests and update their status or completion date.</p>
+        </div>
+        <div class="header-actions">
+            <button class="refresh-btn" onclick="loadRequests()">
+                🔄 Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+
+    <!-- Summary -->
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-label"><span class="summary-dot dot-all"></span> Total</div>
+            <div class="summary-value" id="s-total">—</div>
+            <div class="summary-sub">All requests</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label"><span class="summary-dot dot-pending"></span> Pending</div>
+            <div class="summary-value" id="s-pending">—</div>
+            <div class="summary-sub">Awaiting action</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label"><span class="summary-dot dot-progress"></span> In Progress</div>
+            <div class="summary-value" id="s-progress">—</div>
+            <div class="summary-sub">Currently active</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label"><span class="summary-dot dot-done"></span> Completed</div>
+            <div class="summary-value" id="s-completed">—</div>
+            <div class="summary-sub">Finished jobs</div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <input
+                type="text"
+                id="searchInput"
+                placeholder="Search by vehicle number, customer name, or service…"
+                oninput="applyFilters()"
+        />
+        <button class="filter-btn active" onclick="setFilter('All', this)">All</button>
+        <button class="filter-btn" onclick="setFilter('Pending', this)">🟡 Pending</button>
+        <button class="filter-btn" onclick="setFilter('In Progress', this)">🔵 In Progress</button>
+        <button class="filter-btn" onclick="setFilter('Completed', this)">🟢 Completed</button>
+        <span class="result-label" id="resultLabel"></span>
+    </div>
+
+    <!-- Cards -->
+    <div class="cards-list" id="cardsList">
+        <div class="loading-state">Loading service requests…</div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🔍</div>
+        <h3>No Requests Found</h3>
+        <p>No service requests match your current filter or search.</p>
+    </div>
+
+</main>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+
+<script>
+    /* ══ CONFIG ══ */
+    const API = 'http://localhost:8080/api/service';
+
+    let allRequests = [];
+    let activeFilter = 'All';
+
+    /* ══ MOBILE NAV TOGGLE ══ */
+    document.getElementById('hamburgerAdmin').addEventListener('click', function () {
+        document.getElementById('mobileNav').classList.toggle('open');
+    });
+
+    /* ══ LOAD ALL REQUESTS ══ */
+    function loadRequests() {
+        document.getElementById('cardsList').innerHTML = '<div class="loading-state">Loading service requests…</div>';
+        document.getElementById('emptyState').classList.remove('show');
+
+        fetch(`${API}/all`)
+            .then(res => {
+                if (!res.ok) throw new Error('Server error');
+                return res.json();
+            })
+            .then(data => {
+                allRequests = data;
+                updateSummary();
+                applyFilters();
+            })
+            .catch(() => {
+                document.getElementById('cardsList').innerHTML = `
+                    <div class="empty-state show">
+                        <div class="empty-icon">⚠️</div>
+                        <h3>Could Not Load Requests</h3>
+                        <p>Make sure your Spring Boot server is running on port 8080.</p>
+                    </div>`;
+            });
+    }
+
+    /* ══ SUMMARY ══ */
+    function updateSummary() {
+        document.getElementById('s-total').textContent    = allRequests.length;
+        document.getElementById('s-pending').textContent  = allRequests.filter(r => r.status === 'Pending').length;
+        document.getElementById('s-progress').textContent = allRequests.filter(r => r.status === 'In Progress').length;
+        document.getElementById('s-completed').textContent= allRequests.filter(r => r.status === 'Completed').length;
+    }
+
+    /* ══ FILTER ══ */
+    function setFilter(val, btn) {
+        activeFilter = val;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const q = document.getElementById('searchInput').value.trim().toLowerCase();
+        let filtered = allRequests;
+
+        if (activeFilter !== 'All') {
+            filtered = filtered.filter(r => r.status === activeFilter);
+        }
+
+        if (q) {
+            filtered = filtered.filter(r =>
+                (r.vehicleNumber  || '').toLowerCase().includes(q) ||
+                (r.customerName   || '').toLowerCase().includes(q) ||
+                (r.vehicleName    || '').toLowerCase().includes(q) ||
+                (r.serviceType    || '').toLowerCase().includes(q)
+            );
+        }
+
+        renderCards(filtered);
+        document.getElementById('resultLabel').textContent =
+            `Showing ${filtered.length} of ${allRequests.length} requests`;
+    }
+
+    /* ══ RENDER CARDS ══ */
+    function renderCards(list) {
+        const container = document.getElementById('cardsList');
+        const empty     = document.getElementById('emptyState');
+
+        if (!list.length) {
+            container.innerHTML = '';
+            empty.classList.add('show');
+            return;
+        }
+
+        empty.classList.remove('show');
+        container.innerHTML = list.map(req => buildCard(req)).join('');
+    }
+
+    /* ══ BUILD CARD HTML ══ */
+    function buildCard(req) {
+        const stClass    = req.status === 'Pending' ? 'st-pending' : req.status === 'In Progress' ? 'st-progress' : 'st-completed';
+        const badgeClass = req.status === 'Pending' ? 'badge-pending' : req.status === 'In Progress' ? 'badge-progress' : 'badge-done';
+        const completedVal = req.completedAt ? req.completedAt.split('T')[0] : '';
+        const showDate   = req.status === 'Completed';
+
+        return `
+        <div class="req-card ${stClass}" id="card-${req.id}">
+
+            <div class="card-top">
+                <div class="card-veh">
+                    <h3>${req.vehicleName || '—'}</h3>
+                    <p>${req.vehicleNumber || '—'} &nbsp;·&nbsp; ${req.customerName || '—'} &nbsp;·&nbsp; ${req.phone || ''}</p>
+                </div>
+                <span class="status-badge ${badgeClass}">${req.status}</span>
+            </div>
+
+            <div class="card-info">
+                <div class="info-item">
+                    <span class="info-lbl">Service Type</span>
+                    <span class="info-val">${req.serviceType || '—'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-lbl">Model Year</span>
+                    <span class="info-val">${req.modelYear || '—'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-lbl">Submitted On</span>
+                    <span class="info-val">${formatDate(req.submittedAt)}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-lbl">Completed On</span>
+                    <span class="info-val">${req.completedAt ? formatDate(req.completedAt) : '—'}</span>
+                </div>
+            </div>
+
+            <div class="card-controls">
+                <span class="ctrl-label">Status:</span>
+                <select class="status-select" id="sel-${req.id}" onchange="onStatusChange(${req.id})">
+                    <option value="Pending"     ${req.status === 'Pending'     ? 'selected' : ''}>Pending</option>
+                    <option value="In Progress" ${req.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                    <option value="Completed"   ${req.status === 'Completed'   ? 'selected' : ''}>Completed</option>
+                </select>
+
+                <div class="date-group ${showDate ? 'show' : ''}" id="dgrp-${req.id}">
+                    <label>Completion Date:</label>
+                    <input
+                        type="date"
+                        class="date-input"
+                        id="date-${req.id}"
+                        value="${completedVal}"
+                    />
+                </div>
+
+                <button class="save-btn" id="savebtn-${req.id}" onclick="saveUpdate(${req.id})">
+                    💾 Save Changes
+                </button>
+            </div>
+
+        </div>`;
+    }
+
+    /* ══ STATUS CHANGE HANDLER ══ */
+    function onStatusChange(id) {
+        const status = document.getElementById(`sel-${id}`).value;
+        const dgrp   = document.getElementById(`dgrp-${id}`);
+        const dateInput = document.getElementById(`date-${id}`);
+
+        if (status === 'Completed') {
+            dgrp.classList.add('show');
+            if (!dateInput.value) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+        } else {
+            dgrp.classList.remove('show');
+        }
+    }
+
+    /* ══ SAVE UPDATE ══ */
+    function saveUpdate(id) {
+        const status   = document.getElementById(`sel-${id}`).value;
+        const dateInput = document.getElementById(`date-${id}`);
+        const dateVal  = dateInput ? dateInput.value : null;
+        const btn      = document.getElementById(`savebtn-${id}`);
+
+        if (status === 'Completed' && !dateVal) {
+            alert('Please select a completion date.');
+            return;
+        }
+
+        btn.disabled    = true;
+        btn.textContent = 'Saving…';
+
+        const payload = { status };
+        if (status === 'Completed' && dateVal) {
+            payload.completedAt = dateVal + 'T00:00:00';
+        } else {
+            payload.completedAt = null;
+        }
+
+        fetch(`${API}/request/${id}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Server error');
+            return res.json();
+        })
+        .then(updated => {
+            updateLocalRequest(id, status, payload.completedAt);
+            showToast('Status updated successfully!');
+            btn.disabled    = false;
+            btn.textContent = '💾 Save Changes';
+        })
+        .catch(() => {
+            alert('Could not save. Please make sure the server is running.');
+            btn.disabled    = false;
+            btn.textContent = '💾 Save Changes';
+        });
+    }
+
+    /* ══ UPDATE LOCAL STATE ══ */
+    function updateLocalRequest(id, status, completedAt) {
+        const idx = allRequests.findIndex(r => r.id === id);
+        if (idx > -1) {
+            allRequests[idx].status      = status;
+            allRequests[idx].completedAt = completedAt || null;
+        }
+        updateSummary();
+    }
+
+    /* ══ TOAST ══ */
+    function showToast(msg) {
+        document.getElementById('toastMsg').textContent = msg;
+        const t = document.getElementById('toast');
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    /* ══ FORMAT DATE ══ */
+    function formatDate(dateStr) {
+        if (!dateStr) return '—';
+        return new Date(dateStr).toLocaleDateString('en-IN', {
+            day: '2-digit', month: 'short', year: 'numeric'
+        });
+    }
+
+    /* ══ INIT ══ */
+    loadRequests();
+</script>
+
+</body>
+</html>
